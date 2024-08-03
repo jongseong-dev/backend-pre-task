@@ -22,3 +22,8 @@ hostname, _, ips = socket.gethostbyname_ex(
 INTERNAL_IPS += [
     ".".join(ip.split(".")[:-1] + ["1"]) for ip in ips
 ]
+
+
+SIMPLE_JWT["SIGNING_KEY"] = os.environ.get(
+    "JWT_SECRET_KEY", "local-secret-key"
+)
