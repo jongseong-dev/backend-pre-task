@@ -1,17 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-
-class CreatedUpdatedHistoryModel(models.Model):
-    created_datetime = models.DateTimeField(
-        auto_now_add=True, db_comment="생성일시"
-    )
-    updated_datetime = models.DateTimeField(
-        auto_now=True, db_comment="수정일시"
-    )
-
-    class Meta:
-        abstract = True
+from conf.models import CreatedUpdatedHistoryModel
+from label.models import Label
 
 
 class ContactBook(CreatedUpdatedHistoryModel):
@@ -49,25 +40,9 @@ class ContactBook(CreatedUpdatedHistoryModel):
     )
 
     class Meta:
-        db_table = "contact_book"
+        db_table = "contactbook"
         db_table_comment = "주소록"
         indexes = [models.Index(fields=["name"])]
-
-
-class Label(CreatedUpdatedHistoryModel):
-    owner = models.ForeignKey(
-        User,
-        related_name="label",
-        on_delete=models.CASCADE,
-        db_comment="주소록 소유자",
-    )
-    name = models.CharField(
-        max_length=50, db_comment="라벨 이름"
-    )
-
-    class Meta:
-        db_table = "label"
-        db_table_comment = "라벨"
 
 
 class ContactLabel(CreatedUpdatedHistoryModel):
@@ -85,5 +60,5 @@ class ContactLabel(CreatedUpdatedHistoryModel):
     )
 
     class Meta:
-        db_table = "contact_label"
+        db_table = "contactbook_label"
         db_table_comment = "주소록에 있는 연락처의 라벨링을 관리하는 테이블"
