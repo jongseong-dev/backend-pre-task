@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.4.2
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=contactbook
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+    ports:
+      - "3306:3306"
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deploy
+    volumes:
+      - .:/mysite
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_NAME=contactbook
+      - DB_USER=mysql
+      - DB_PASSWORD=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+    depends_on:
+      - db
+  test_web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - DB_NAME=contactbook
+      - DB_USER=mysql
+      - DB_PASSWORD=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+    depends_on:
+      - db
+volumes:
+  mysql_volume:
