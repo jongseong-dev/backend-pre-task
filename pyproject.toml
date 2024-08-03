@@ -11,6 +11,8 @@ django = ">=4.2,<5.0"
 djangorestframework = ">=3.14,<4.0"
 django-mysql = "^4.14.0"
 drf-spectacular = "^0.27.2"
+pillow = "^10.4.0"
+mysqlclient = "^2.2.4"
 
 
 [tool.poetry.group.test.dependencies]
@@ -24,6 +26,7 @@ pytest-cov = "^5.0.0"
 flake8 = "^7.1.0"
 ruff = "^0.5.6"
 pyright = "^1.1.374"
+black = "^24.8.0"
 
 
 [tool.poetry.group.dev.dependencies]
