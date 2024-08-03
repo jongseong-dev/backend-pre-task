@@ -1,3 +1,6 @@
+from phonenumber_field.serializerfields import (
+    PhoneNumberField,
+)
 from rest_framework import serializers
 
 from contactbook.models import ContactBook, ContactLabel
@@ -20,8 +23,8 @@ class ContactBookRetrieveSerializer(
     name = serializers.CharField(
         max_length=50, required=True, help_text="이름"
     )
-    phone = serializers.CharField(
-        max_length=20, required=True, help_text="전화번호"
+    phone = PhoneNumberField(
+        required=True, help_text="전화번호", region="KR"
     )
     email = serializers.EmailField(
         required=False, help_text="이메일"
@@ -41,8 +44,11 @@ class ContactBookRetrieveSerializer(
     address = serializers.CharField(
         max_length=100, required=False, help_text="주소"
     )
-    birthday = serializers.DateTimeField(
-        required=False, help_text="생일"
+    birthday = serializers.DateField(
+        required=False,
+        help_text="생일",
+        format="%Y-%m-%d",
+        input_formats=["%Y-%m-%d"],
     )
     website_url = serializers.URLField(
         required=False, help_text="웹사이트 URL"

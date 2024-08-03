@@ -11,3 +11,11 @@ class CreatedUpdatedHistoryModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class CustomManager(models.Manager):
+    def owner(self, user):
+        """
+        사용자가 소유한 객체만 필터링
+        """
+        return self.get_queryset().filter(owner=user)
