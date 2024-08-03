@@ -6,7 +6,8 @@
     "**/node_modules",
     "**/__pycache__",
     "backend/experimental",
-    "backend/typestubs"
+    "backend/typestubs",
+    "**/models.py"
   ],
   "typingsPath": "backend/typestubs",
   "reportMissingImports": false,
