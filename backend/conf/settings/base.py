@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "debug_toolbar",
+    # apps
+    "contactbook.apps.ContactbookConfig",
 ]
 
 MIDDLEWARE = [
