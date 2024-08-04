@@ -1,11 +1,14 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from contactbook.models import ContactBook
 from contactbook.serializers import (
     ContactBookRetrieveSerializer,
     ContactBookListSerializer,
+    ContactBookUpdateDeleteSerializer,
+    ContactBookLabelCreateSerializer,
 )
 
 
@@ -20,16 +23,35 @@ class ContactBookViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return ContactBookListSerializer
-        return ContactBookRetrieveSerializer
+        if self.action in ["create", "retrieve"]:
+            return ContactBookRetrieveSerializer
+        return ContactBookUpdateDeleteSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+        return self.queryset.filter(
+            owner=self.request.user
+        ).prefetch_related("labeled_contact")
 
+    @extend_schema(
+        summary="라벨 추가",
+        description="주소록에 라벨을 추가하는 API",
+        tags=["ContactBook"],
+        request=ContactBookLabelCreateSerializer,
+    )
     @action(
         detail=True,
-        methods=["get", "post", "update"],
+        methods=["POST"],
         url_path="label",
-        url_name="label",
+        serializer_class=ContactBookLabelCreateSerializer,
     )
-    def labeled_contactbook(self, request, pk=None):
-        pass
+    def add_label(self, request, version=None, pk=None):
+        serializer = ContactBookLabelCreateSerializer(
+            data=request.data
+        )
+        serializer.is_valid(raise_exception=True)
+        results = serializer.save(
+            contact_id=pk, owner=request.user
+        )
+        return Response(
+            ContactBookRetrieveSerializer(results).data
+        )
