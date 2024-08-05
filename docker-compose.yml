@@ -17,36 +17,5 @@ services:
       - MYSQL_DATABASE=contactbook
     ports:
       - "3307:3306"
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: deploy
-    volumes:
-      - .:/mysite
-    ports:
-      - "8000:8000"
-    environment:
-      - DB_NAME=contactbook
-      - DB_USER=mysql
-      - DB_PASSWORD=mysql
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DJANGO_SETTINGS_MODULE=config.settings.local
-    depends_on:
-      - db
-  test-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: test
-    environment:
-      - DB_NAME=contactbook
-      - DB_USER=mysql
-      - DB_PASSWORD=mysql
-      - DB_HOST=db
-      - DB_PORT=3306
-    depends_on:
-      - db
 volumes:
   mysql_volume:
