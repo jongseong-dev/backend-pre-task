@@ -23,9 +23,9 @@ class ContactLabelSerializer(serializers.Serializer):
     )
 
     def get_labels(self, obj) -> list[dict]:
-        label_ids = obj.labeled_contact.values_list("label_id", flat=True)
-        queryset = Label.objects.filter(id__in=label_ids)
-        return LabelSerializer(queryset, many=True).data
+        label_ids = [labeled.label_id for labeled in obj.labeled_contact.all()]
+        labels = Label.objects.filter(id__in=label_ids)
+        return LabelSerializer(labels, many=True).data
 
     class Meta:
         fields = ["labels", "label_ids"]
