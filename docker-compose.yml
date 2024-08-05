@@ -6,8 +6,10 @@ services:
     volumes:
       - mysql_volume:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=contactbook
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
     ports:
       - "3306:3306"
   test-db:
@@ -15,6 +17,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=mysql
       - MYSQL_DATABASE=contactbook
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
     ports:
       - "3307:3306"
 volumes:
