@@ -58,10 +58,14 @@ class ContactBookViewSet(ModelViewSet):
         serializer_class=ContactBookLabelSerializer,
     )
     def add_label(self, request, version=None, pk=None):
+        contact = self.get_object()
         serializer = ContactBookLabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        results = serializer.save(contact_id=pk, owner=request.user)
-        return Response(ContactBookRetrieveSerializer(results).data)
+        results = serializer.save(contact_id=contact.id, owner=request.user)
+        return Response(
+            ContactBookRetrieveSerializer(results).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     @extend_schema(
         summary="라벨 삭제",
@@ -76,9 +80,9 @@ class ContactBookViewSet(ModelViewSet):
         serializer_class=ContactBookLabelSerializer,
     )
     def delete_label(self, request, version=None, pk=None):
+        instance = self.get_object()
         serializer = ContactBookLabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         label_ids = serializer.validated_data["label_ids"]
-        instance = ContactBook.objects.owner(self.request.user).get(id=pk)
         instance.labeled_contact.filter(label_id__in=label_ids).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
