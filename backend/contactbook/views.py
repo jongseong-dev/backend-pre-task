@@ -1,5 +1,9 @@
+from django_filters.rest_framework import (
+    DjangoFilterBackend,
+)
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -19,6 +23,14 @@ from contactbook.serializers import (
 )
 class ContactBookViewSet(ModelViewSet):
     queryset = ContactBook.objects.all()
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering = ["-created_datetime"]
+    ordering_fields = [
+        "created_datetime",
+        "name",
+        "email",
+        "phone",
+    ]
 
     def get_serializer_class(self):
         if self.action == "list":
