@@ -41,9 +41,9 @@ class ContactBookViewSet(ModelViewSet):
         return ContactBookUpdateDeleteSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            owner=self.request.user
-        ).prefetch_related("labeled_contact")
+        return self.queryset.filter(owner=self.request.user).prefetch_related(
+            "labeled_contact"
+        )
 
     @extend_schema(
         summary="라벨 추가",

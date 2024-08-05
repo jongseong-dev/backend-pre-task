@@ -7,8 +7,6 @@ from apps.label.models import Label
 from apps.label.serializers import LabelSerializer
 
 
-# TODO: 1. Serializer 정리
-# TODO: 2. 중복되는 로직을 service layer로 이동시켜야 한다.
 class ContactLabelSerializer(serializers.Serializer):
     """
     연락처에서 필요한 라벨에 대한 정보를 담고있는 Serializer
@@ -73,7 +71,8 @@ class ContactBookListSerializer(
             "company",
             "position",
             "profile_image_url",
-        ] + ContactLabelSerializer.Meta.fields
+            "labels",
+        ]
 
 
 class ContactBookUpdateDeleteSerializer(
@@ -134,7 +133,7 @@ class ContactBookLabelSerializer(
     ContactLabelSerializer, serializers.Serializer
 ):
     class Meta:
-        fields = ContactLabelSerializer.Meta.fields
+        fields = ["label_ids"]
 
     def create(self, validated_data):
         with transaction.atomic():
