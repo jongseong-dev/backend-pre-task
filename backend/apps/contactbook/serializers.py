@@ -109,6 +109,11 @@ class ContactBookRetrieveSerializer(
     ContactBookBaseSerializer,
     serializers.ModelSerializer,
 ):
+    address = serializers.CharField(help_text="주소", required=False)
+    birthday = serializers.DateField(help_text="생일", required=False)
+    website_url = serializers.URLField(
+        help_text="웹사이트 URL", required=False
+    )
 
     def create(self, validated_data):
         with transaction.atomic():

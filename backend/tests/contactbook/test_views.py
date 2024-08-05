@@ -171,6 +171,24 @@ def test_contact_book_create_invalid_required_empty(
 
 
 @pytest.mark.django_db
+def test_contact_book_create_check_not_required_field(
+    authenticated_user_client, contact_book_url, contact_book_post_insert_data
+):
+    # 주소 빠짐
+    insert_data = contact_book_post_insert_data.copy()
+    insert_data.pop("address")
+    insert_data.pop("birthday")
+    insert_data.pop("website_url")
+    response = authenticated_user_client.post(
+        contact_book_url, data=insert_data
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert not response.data["address"]
+    assert not response.data["birthday"]
+    assert not response.data["website_url"]
+
+
+@pytest.mark.django_db
 def test_contact_book_create_with_label(
     authenticated_user_client,
     contact_book_url,
