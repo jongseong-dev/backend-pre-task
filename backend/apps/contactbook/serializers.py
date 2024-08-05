@@ -41,7 +41,7 @@ class ContactBookBaseSerializer(serializers.ModelSerializer):
     name = serializers.CharField(help_text="이름")
     email = serializers.EmailField(help_text="이메일")
     phone = serializers.CharField(help_text="전화번호")
-    company = serializers.CharField(help_text="회사")
+    company = serializers.CharField(help_text="회사(직책)")
     position = serializers.CharField(help_text="직책")
     memo = serializers.CharField(help_text="메모")
     address = serializers.CharField(help_text="주소")
@@ -61,6 +61,13 @@ class ContactBookListSerializer(
     ContactBookBaseSerializer,
     serializers.ModelSerializer,
 ):
+    company_position = serializers.SerializerMethodField(
+        help_text="회사(직책)"
+    )
+
+    def get_company_position(self, obj) -> str:
+        return f"{obj.company}({obj.position})"
+
     class Meta:
         model = ContactBook
         fields = [
@@ -68,8 +75,7 @@ class ContactBookListSerializer(
             "name",
             "email",
             "phone",
-            "company",
-            "position",
+            "company_position",
             "profile_image_url",
             "labels",
         ]
