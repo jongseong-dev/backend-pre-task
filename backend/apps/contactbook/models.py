@@ -2,11 +2,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
-from conf.models import (
-    CreatedUpdatedHistoryModel,
-    CustomManager,
-)
+from apps.consts import ManagerChoices
 from apps.label.models import Label
+from apps.models import (
+    CreatedUpdatedHistoryModel,
+    get_model_manager,
+)
 
 
 class ContactBook(CreatedUpdatedHistoryModel):
@@ -37,7 +38,7 @@ class ContactBook(CreatedUpdatedHistoryModel):
     birthday = models.DateField(blank=True, null=True, db_comment="생일")
     website_url = models.URLField(blank=True, db_comment="웹사이트 URL")
 
-    objects = CustomManager()
+    objects = get_model_manager(ManagerChoices.DEFAULT)
 
     class Meta:
         db_table = "contactbook"
@@ -59,7 +60,7 @@ class ContactLabel(CreatedUpdatedHistoryModel):
         db_comment="라벨",
     )
 
-    objects = CustomManager()
+    objects = get_model_manager(ManagerChoices.DEFAULT)
 
     class Meta:
         db_table = "contactbook_label"

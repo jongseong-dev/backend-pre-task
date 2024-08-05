@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from conf.models import (
+from apps.consts import ManagerChoices
+from apps.models import (
     CreatedUpdatedHistoryModel,
-    CustomManager,
+    get_model_manager,
 )
 
 
@@ -16,7 +17,7 @@ class Label(CreatedUpdatedHistoryModel):
     )
     name = models.CharField(max_length=50, db_comment="라벨 이름")
 
-    objects = CustomManager()
+    objects = get_model_manager(ManagerChoices.CUSTOM)
 
     class Meta:
         db_table = "label"
