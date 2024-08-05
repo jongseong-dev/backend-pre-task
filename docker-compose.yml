@@ -6,12 +6,17 @@ services:
     volumes:
       - mysql_volume:/var/lib/mysql
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=mysql
       - MYSQL_DATABASE=contactbook
-      - MYSQL_USER=mysql
-      - MYSQL_PASSWORD=mysql
     ports:
       - "3306:3306"
+  test-db:
+    image: mysql:8.4.2
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_DATABASE=contactbook
+    ports:
+      - "3307:3306"
   web:
     build:
       context: .
@@ -30,7 +35,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.local
     depends_on:
       - db
-  test_web:
+  test-web:
     build:
       context: .
       dockerfile: Dockerfile
