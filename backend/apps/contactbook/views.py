@@ -2,6 +2,7 @@ from django_filters.rest_framework import (
     DjangoFilterBackend,
 )
 from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
@@ -12,7 +13,7 @@ from apps.contactbook.serializers import (
     ContactBookRetrieveSerializer,
     ContactBookListSerializer,
     ContactBookUpdateDeleteSerializer,
-    ContactBookLabelCreateSerializer,
+    ContactBookLabelSerializer,
 )
 
 
@@ -48,22 +49,36 @@ class ContactBookViewSet(ModelViewSet):
         summary="라벨 추가",
         description="주소록에 라벨을 추가하는 API",
         tags=["ContactBook"],
-        request=ContactBookLabelCreateSerializer,
+        request=ContactBookLabelSerializer,
     )
     @action(
         detail=True,
         methods=["POST"],
         url_path="label",
-        serializer_class=ContactBookLabelCreateSerializer,
+        serializer_class=ContactBookLabelSerializer,
     )
     def add_label(self, request, version=None, pk=None):
-        serializer = ContactBookLabelCreateSerializer(
-            data=request.data
-        )
+        serializer = ContactBookLabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        results = serializer.save(
-            contact_id=pk, owner=request.user
-        )
-        return Response(
-            ContactBookRetrieveSerializer(results).data
-        )
+        results = serializer.save(contact_id=pk, owner=request.user)
+        return Response(ContactBookRetrieveSerializer(results).data)
+
+    @extend_schema(
+        summary="라벨 삭제",
+        description="주소록에 라벨을 삭제하는 API",
+        tags=["ContactBook"],
+        request=ContactBookLabelSerializer,
+    )
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="label/deleted",
+        serializer_class=ContactBookLabelSerializer,
+    )
+    def delete_label(self, request, version=None, pk=None):
+        serializer = ContactBookLabelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        label_ids = serializer.validated_data["label_ids"]
+        instance = ContactBook.objects.owner(self.request.user).get(id=pk)
+        instance.labeled_contact.filter(label_id__in=label_ids).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

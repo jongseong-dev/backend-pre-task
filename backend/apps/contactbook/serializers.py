@@ -130,7 +130,7 @@ class ContactBookRetrieveSerializer(
         ] + ContactLabelSerializer.Meta.fields
 
 
-class ContactBookLabelCreateSerializer(
+class ContactBookLabelSerializer(
     ContactLabelSerializer, serializers.Serializer
 ):
     class Meta:
