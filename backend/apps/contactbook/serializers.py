@@ -127,15 +127,13 @@ class ContactBookRetrieveSerializer(
 
     def create(self, validated_data):
         with transaction.atomic():
-            validated_data["owner"] = self.context[
-                "request"
-            ].user
-            instance = super().create(validated_data)
+            validated_data["owner"] = self.context["request"].user
             labels = validated_data.pop("label_ids", [])
+            instance = super().create(validated_data)
             if labels:
                 for label in labels:
                     ContactLabel.objects.create(
-                        contact=instance.id, label_id=label
+                        contact_id=instance.id, label_id=label
                     )
         return instance
 
