@@ -7,8 +7,8 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from contactbook.models import ContactBook
-from contactbook.serializers import (
+from apps.contactbook.models import ContactBook
+from apps.contactbook.serializers import (
     ContactBookRetrieveSerializer,
     ContactBookListSerializer,
     ContactBookUpdateDeleteSerializer,

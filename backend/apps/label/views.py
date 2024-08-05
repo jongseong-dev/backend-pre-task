@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import ModelViewSet
 
-from label.models import Label
-from label.serializers import LabelSerializer
+from apps.label.models import Label
+from apps.label.serializers import LabelSerializer
 
 
 @extend_schema(

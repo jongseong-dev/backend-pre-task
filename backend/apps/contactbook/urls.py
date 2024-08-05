@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 
-from contactbook.views import ContactBookViewSet
+from apps.contactbook.views import ContactBookViewSet
 
 app_name = "contactbook"
 router = DefaultRouter()

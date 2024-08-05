@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "phonenumber_field",
     # apps
-    "contactbook.apps.ContactbookConfig",
-    "label.apps.LabelConfig",
+    "apps.contactbook.apps.ContactbookConfig",
+    "apps.label.apps.LabelConfig",
 ]
 
 MIDDLEWARE = [
@@ -169,14 +169,10 @@ REST_FRAMEWORK = {
 # jwt config
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=int(
-            os.environ.get("JWT_ACCESS_LIFETIME", 60)
-        )
+        minutes=int(os.environ.get("JWT_ACCESS_LIFETIME", 60))
     ),
     "REFRESH_TOKEN_LIFETIME": timedelta(
-        hours=int(
-            os.environ.get("JWT_REFRESH_LIFETIME", 24)
-        )
+        hours=int(os.environ.get("JWT_REFRESH_LIFETIME", 24))
     ),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -190,9 +186,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-    "AUTH_TOKEN_CLASSES": (
-        "rest_framework_simplejwt.tokens.AccessToken",
-    ),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "JTI_CLAIM": "jti",
 }

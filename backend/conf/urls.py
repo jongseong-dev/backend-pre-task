@@ -39,13 +39,11 @@ urlpatterns = [
     path("health/", health_check, name="health_check"),
     path(
         "api/<str:version>/contactbook/",
-        include(
-            "contactbook.urls", namespace="contactbook"
-        ),
+        include("apps.contactbook.urls", namespace="contactbook"),
     ),
     path(
         "api/<str:version>/label/",
-        include("label.urls", namespace="label"),
+        include("apps.label.urls", namespace="label"),
     ),
     path(
         "api/token/",
@@ -67,9 +65,7 @@ urlpatterns = [
 if settings.DEBUG:
     if "debug_toolbar" in settings.INSTALLED_APPS:
         urlpatterns += [
-            path(
-                "__debug__/", include("debug_toolbar.urls")
-            ),
+            path("__debug__/", include("debug_toolbar.urls")),
         ]
 
     urlpatterns += [
@@ -80,9 +76,7 @@ if settings.DEBUG:
         ),
         path(
             "api/schema/swagger-ui/",
-            SpectacularSwaggerView.as_view(
-                url_name="schema"
-            ),
+            SpectacularSwaggerView.as_view(url_name="schema"),
             name="swagger-ui",
         ),
         path(

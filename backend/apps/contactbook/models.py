@@ -6,7 +6,7 @@ from conf.models import (
     CreatedUpdatedHistoryModel,
     CustomManager,
 )
-from label.models import Label
+from apps.label.models import Label
 
 
 class ContactBook(CreatedUpdatedHistoryModel):
@@ -16,9 +16,7 @@ class ContactBook(CreatedUpdatedHistoryModel):
         on_delete=models.CASCADE,
         db_comment="주소록 소유자",
     )
-    name = models.CharField(
-        max_length=50, db_comment="저장한 이름"
-    )
+    name = models.CharField(max_length=50, db_comment="저장한 이름")
     email = models.EmailField(db_comment="저장한 이메일")
     phone = PhoneNumberField(
         max_length=20,
@@ -35,15 +33,9 @@ class ContactBook(CreatedUpdatedHistoryModel):
     profile_image_url = models.URLField(
         blank=True, db_comment="프로필 이미지 URL"
     )
-    address = models.CharField(
-        max_length=100, blank=True, db_comment="주소"
-    )
-    birthday = models.DateField(
-        blank=True, null=True, db_comment="생일"
-    )
-    website_url = models.URLField(
-        blank=True, db_comment="웹사이트 URL"
-    )
+    address = models.CharField(max_length=100, blank=True, db_comment="주소")
+    birthday = models.DateField(blank=True, null=True, db_comment="생일")
+    website_url = models.URLField(blank=True, db_comment="웹사이트 URL")
 
     objects = CustomManager()
 

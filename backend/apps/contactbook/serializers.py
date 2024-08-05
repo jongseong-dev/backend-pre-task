@@ -4,9 +4,9 @@ from phonenumber_field.serializerfields import (
 )
 from rest_framework import serializers
 
-from contactbook.models import ContactBook, ContactLabel
-from label.models import Label
-from label.serializers import LabelListSerializer
+from apps.contactbook.models import ContactBook, ContactLabel
+from apps.label.models import Label
+from apps.label.serializers import LabelListSerializer
 
 
 # TODO: 1. Serializer 정리
@@ -170,7 +170,7 @@ class ContactBookLabelCreateSerializer(
             ).get(id=contact_id)
             labels = validated_data.pop("label_ids", [])
             labels: list[Label] = (
-                Label.objects.owner(validated_data["owner"])
+                Label.owner(validated_data["owner"])
                 .filter(id__in=labels)
                 .only("id")
             )
