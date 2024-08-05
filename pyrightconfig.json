@@ -13,6 +13,7 @@
   "reportMissingImports": false,
   "reportMissingModuleSource": false,
   "reportMissingTypeStubs": false,
+  "reportIncompatibleVariableOverride": false,
   "pythonVersion": "3.11",
   "pythonPlatform": "Windows",
   "executionEnvironments": [
