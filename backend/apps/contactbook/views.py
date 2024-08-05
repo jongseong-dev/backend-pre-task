@@ -1,6 +1,3 @@
-from django_filters.rest_framework import (
-    DjangoFilterBackend,
-)
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, mixins
 from rest_framework.decorators import action
@@ -30,7 +27,7 @@ class ContactBookViewSet(
     GenericViewSet,
 ):
     queryset = ContactBook.objects.all()
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [OrderingFilter]
     ordering = ["-created_datetime"]
     ordering_fields = [
         "created_datetime",

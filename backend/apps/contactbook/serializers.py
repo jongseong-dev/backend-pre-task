@@ -41,7 +41,7 @@ class ContactBookBaseSerializer(serializers.ModelSerializer):
     name = serializers.CharField(help_text="이름")
     email = serializers.EmailField(help_text="이메일")
     phone = serializers.CharField(help_text="전화번호")
-    company = serializers.CharField(help_text="회사(직책)")
+    company = serializers.CharField(help_text="회사")
     position = serializers.CharField(help_text="직책")
     memo = serializers.CharField(help_text="메모")
     address = serializers.CharField(help_text="주소")
@@ -84,9 +84,6 @@ class ContactBookListSerializer(
 class ContactBookUpdateDeleteSerializer(
     ContactBookBaseSerializer, serializers.ModelSerializer
 ):
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
-
     class Meta:
         model = ContactBook
         fields = [
