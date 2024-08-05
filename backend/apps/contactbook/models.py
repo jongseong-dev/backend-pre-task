@@ -38,7 +38,7 @@ class ContactBook(CreatedUpdatedHistoryModel):
     birthday = models.DateField(blank=True, null=True, db_comment="생일")
     website_url = models.URLField(blank=True, db_comment="웹사이트 URL")
 
-    objects = get_model_manager(ManagerChoices.DEFAULT)
+    objects = get_model_manager(ManagerChoices.CUSTOM)
 
     class Meta:
         db_table = "contactbook"
