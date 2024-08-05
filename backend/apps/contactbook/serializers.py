@@ -1,7 +1,8 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.contactbook.models import ContactBook, ContactLabel
+from apps.contactbook.models import ContactBook
+from apps.contactbook.service import contact_book_service
 from apps.label.models import Label
 from apps.label.serializers import LabelSerializer
 
@@ -109,11 +110,7 @@ class ContactBookRetrieveSerializer(
             validated_data["owner"] = self.context["request"].user
             labels = validated_data.pop("label_ids", [])
             instance = super().create(validated_data)
-            if labels:
-                for label in labels:
-                    ContactLabel.objects.create(
-                        contact_id=instance.id, label_id=label
-                    )
+            contact_book_service.add_label(instance.id, labels)
         return instance
 
     class Meta:
@@ -146,14 +143,11 @@ class ContactBookLabelCreateSerializer(
                 "labeled_contact"
             ).get(id=contact_id)
             labels = validated_data.pop("label_ids", [])
-            labels: list[Label] = (
+            labels: list[int] = (
                 Label.objects.owner(validated_data["owner"])
                 .filter(id__in=labels)
-                .only("id")
+                .values_list("id", flat=True)
             )
-            for label in labels:
-                ContactLabel.objects.get_or_create(
-                    contact_id=contact_id, label_id=label.id
-                )
+            contact_book_service.add_label(contact_id, labels)
             contact.refresh_from_db()
             return contact
