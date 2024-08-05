@@ -11,9 +11,7 @@ from apps.label.serializers import LabelListSerializer
 
 # TODO: 1. Serializer 정리
 # TODO: 2. 중복되는 로직을 service layer로 이동시켜야 한다.
-class ContactBookListSerializer(
-    serializers.ModelSerializer
-):
+class ContactBookListSerializer(serializers.ModelSerializer):
     profile_image_url = serializers.URLField(
         required=False, help_text="프로필 이미지 URL"
     )
@@ -43,9 +41,7 @@ class ContactBookListSerializer(
         ]
 
 
-class ContactLabelListInputSerializer(
-    serializers.Serializer
-):
+class ContactLabelListInputSerializer(serializers.Serializer):
     label_ids = serializers.ListField(
         write_only=True,
         required=False,
@@ -57,27 +53,19 @@ class ContactLabelListInputSerializer(
         fields = ["label_ids"]
 
 
-class ContactBookUpdateDeleteSerializer(
-    serializers.ModelSerializer
-):
+class ContactBookUpdateDeleteSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         max_length=50, required=True, help_text="이름"
     )
-    phone = PhoneNumberField(
-        required=True, help_text="전화번호", region="KR"
-    )
-    email = serializers.EmailField(
-        required=False, help_text="이메일"
-    )
+    phone = PhoneNumberField(required=True, help_text="전화번호", region="KR")
+    email = serializers.EmailField(required=False, help_text="이메일")
     company = serializers.CharField(
         max_length=50, required=False, help_text="회사"
     )
     position = serializers.CharField(
         max_length=50, required=False, help_text="직책"
     )
-    memo = serializers.CharField(
-        required=False, help_text="메모"
-    )
+    memo = serializers.CharField(required=False, help_text="메모")
     profile_image_url = serializers.URLField(
         required=False, help_text="프로필 이미지 URL"
     )
@@ -143,20 +131,12 @@ class ContactBookRetrieveSerializer(
     ):
         list_serializer_class = LabelListSerializer
 
-        contact_book_meta = (
-            ContactBookUpdateDeleteSerializer.Meta.fields
-        )
-        label_list_meta = (
-            ContactLabelListInputSerializer.Meta.fields
-        )
-        fields = (
-            contact_book_meta + label_list_meta + ["labels"]
-        )
+        contact_book_meta = ContactBookUpdateDeleteSerializer.Meta.fields
+        label_list_meta = ContactLabelListInputSerializer.Meta.fields
+        fields = contact_book_meta + label_list_meta + ["labels"]
 
 
-class ContactBookLabelCreateSerializer(
-    ContactLabelListInputSerializer
-):
+class ContactBookLabelCreateSerializer(ContactLabelListInputSerializer):
     class Meta(ContactLabelListInputSerializer.Meta):
         fields = ContactLabelListInputSerializer.Meta.fields
 
