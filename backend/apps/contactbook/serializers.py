@@ -3,32 +3,14 @@ from rest_framework import serializers
 
 from apps.contactbook.models import ContactBook
 from apps.contactbook.service import contact_book_service
-from apps.label.models import Label
-from apps.label.serializers import LabelSerializer
 
 
 class ContactLabelSerializer(serializers.Serializer):
-    """
-    연락처에서 필요한 라벨에 대한 정보를 담고있는 Serializer
-    1. write_only: label_ids - 라벨 ID를 입력으로 받는다.
-    2. read_only: labels - 라벨 정보를 중첩된 구문으로 보여준다.
-    """
-
-    labels = serializers.SerializerMethodField(help_text="라벨 목록")
-    label_ids = serializers.ListField(
-        write_only=True,
-        required=False,
-        child=serializers.IntegerField(),
-        help_text="라벨 ID",
-    )
-
-    def get_labels(self, obj) -> list[dict]:
-        label_ids = [labeled.label_id for labeled in obj.labeled_contact.all()]
-        labels = Label.objects.filter(id__in=label_ids)
-        return LabelSerializer(labels, many=True).data
+    id = serializers.IntegerField(help_text="라벨 ID")
+    name = serializers.CharField(help_text="라벨 이름", read_only=True)
 
     class Meta:
-        fields = ["labels", "label_ids"]
+        fields = ["id", "name"]
 
 
 class ContactBookBaseSerializer(serializers.ModelSerializer):
@@ -57,12 +39,16 @@ class ContactBookBaseSerializer(serializers.ModelSerializer):
 
 
 class ContactBookListSerializer(
-    ContactLabelSerializer,
     ContactBookBaseSerializer,
     serializers.ModelSerializer,
 ):
     company_position = serializers.SerializerMethodField(
         help_text="회사(직책)"
+    )
+    labels = ContactLabelSerializer(
+        many=True,
+        required=False,
+        help_text="라벨",
     )
 
     def get_company_position(self, obj) -> str:
@@ -81,28 +67,7 @@ class ContactBookListSerializer(
         ]
 
 
-class ContactBookUpdateDeleteSerializer(
-    ContactBookBaseSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = ContactBook
-        fields = [
-            "id",
-            "name",
-            "email",
-            "phone",
-            "company",
-            "position",
-            "memo",
-            "profile_image_url",
-            "address",
-            "birthday",
-            "website_url",
-        ]
-
-
 class ContactBookRetrieveSerializer(
-    ContactLabelSerializer,
     ContactBookBaseSerializer,
     serializers.ModelSerializer,
 ):
@@ -111,17 +76,20 @@ class ContactBookRetrieveSerializer(
     website_url = serializers.URLField(
         help_text="웹사이트 URL", required=False
     )
+    labels = ContactLabelSerializer(many=True, required=False)
 
+    @transaction.atomic
     def create(self, validated_data):
-        with transaction.atomic():
-            validated_data["owner"] = self.context["request"].user
-            labels = validated_data.pop("label_ids", [])
-            instance = super().create(validated_data)
-            contact_book_service.add_label(instance.id, labels)
+        validated_data["owner"] = self.context["request"].user
+        labels = validated_data.pop("labels", [{}])
+        instance: ContactBook = super().create(validated_data)
+        labels = contact_book_service.get_labels(labels)
+        contact_book_service.add_label(instance, labels)
         return instance
 
     class Meta:
         model = ContactBook
+        list_serializer_class = ContactLabelSerializer
         fields = [
             "id",
             "name",
@@ -134,27 +102,20 @@ class ContactBookRetrieveSerializer(
             "address",
             "birthday",
             "website_url",
-        ] + ContactLabelSerializer.Meta.fields
+            "labels",
+        ]
 
 
-class ContactBookLabelSerializer(
-    ContactLabelSerializer, serializers.Serializer
-):
+class ContactBookLabelSerializer(serializers.Serializer):
+    labels = ContactLabelSerializer(many=True)
+
     class Meta:
-        fields = ["label_ids"]
+        fields = ["labels"]
 
+    @transaction.atomic
     def create(self, validated_data):
-        with transaction.atomic():
-            contact_id = validated_data["contact_id"]
-            contact = ContactBook.objects.prefetch_related(
-                "labeled_contact"
-            ).get(id=contact_id)
-            labels = validated_data.pop("label_ids", [])
-            labels: list[int] = (
-                Label.objects.owner(validated_data["owner"])
-                .filter(id__in=labels)
-                .values_list("id", flat=True)
-            )
-            contact_book_service.add_label(contact_id, labels)
-            contact.refresh_from_db()
-            return contact
+        instance: ContactBook = validated_data["contact"]
+        labels = validated_data.pop("labels", [{}])
+        labels = contact_book_service.get_labels(labels)
+        contact_book_service.add_label(instance, labels)
+        return instance

@@ -10,9 +10,9 @@ from apps.contactbook.models import ContactBook
 from apps.contactbook.serializers import (
     ContactBookRetrieveSerializer,
     ContactBookListSerializer,
-    ContactBookUpdateDeleteSerializer,
     ContactBookLabelSerializer,
 )
+from apps.contactbook.service import contact_book_service
 
 
 @extend_schema(
@@ -39,13 +39,11 @@ class ContactBookViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return ContactBookListSerializer
-        if self.action in ["create", "retrieve"]:
-            return ContactBookRetrieveSerializer
-        return ContactBookUpdateDeleteSerializer
+        return ContactBookRetrieveSerializer
 
     def get_queryset(self):
         return self.queryset.filter(owner=self.request.user).prefetch_related(
-            "labeled_contact"
+            "labels"
         )
 
     @extend_schema(
@@ -89,7 +87,7 @@ class ContactBookViewSet(
         contact = self.get_object()
         serializer = ContactBookLabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        results = serializer.save(contact_id=contact.id, owner=request.user)
+        results = serializer.save(contact=contact, owner=request.user)
         return Response(
             ContactBookRetrieveSerializer(results).data,
             status=status.HTTP_201_CREATED,
@@ -111,6 +109,7 @@ class ContactBookViewSet(
         instance = self.get_object()
         serializer = ContactBookLabelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        label_ids = serializer.validated_data["label_ids"]
-        instance.labeled_contact.filter(label_id__in=label_ids).delete()
+        labels = serializer.validated_data["labels"]
+        labels = contact_book_service.get_labels(labels)
+        instance.labels.filter(id__in=labels).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
