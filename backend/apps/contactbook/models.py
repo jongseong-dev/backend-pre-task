@@ -37,6 +37,9 @@ class ContactBook(CreatedUpdatedHistoryModel):
     address = models.CharField(max_length=100, blank=True, db_comment="주소")
     birthday = models.DateField(blank=True, null=True, db_comment="생일")
     website_url = models.URLField(blank=True, db_comment="웹사이트 URL")
+    labels = models.ManyToManyField(
+        Label, through="ContactLabel", related_name="labeled_contact"
+    )
 
     objects = get_model_manager(ManagerChoices.CUSTOM)
 
@@ -49,13 +52,11 @@ class ContactBook(CreatedUpdatedHistoryModel):
 class ContactLabel(CreatedUpdatedHistoryModel):
     contact = models.ForeignKey(
         ContactBook,
-        related_name="labeled_contact",
         on_delete=models.CASCADE,
         db_comment="주소록",
     )
     label = models.ForeignKey(
         Label,
-        related_name="labeled_contact",
         on_delete=models.CASCADE,
         db_comment="라벨",
     )
