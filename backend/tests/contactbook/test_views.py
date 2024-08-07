@@ -1,7 +1,10 @@
+import json
+
 import pytest
 from rest_framework import status
 
 from apps.contactbook.factories import ContactBookFactory, ContactLabelFactory
+from apps.contactbook.models import ContactLabel
 from apps.label.models import Label
 
 
@@ -125,7 +128,7 @@ def contact_book_post_insert_data(contact_book_insert_data):
     return {
         "name": contact_book_insert_data.name,
         "email": contact_book_insert_data.email,
-        "phone": contact_book_insert_data.phone,
+        "phone": str(contact_book_insert_data.phone),
         "company": contact_book_insert_data.company,
         "position": contact_book_insert_data.position,
         "memo": contact_book_insert_data.memo,
@@ -196,10 +199,14 @@ def test_contact_book_create_with_label(
     labels,
 ):
     insert_data = contact_book_post_insert_data
-    insert_data["label_ids"] = [label.id for label in labels]
+    input_labels = []
+    for label in labels:
+        input_labels.append({"id": label.id})
+    insert_data["labels"] = input_labels
     response = authenticated_user_client.post(
         contact_book_url,
-        data=insert_data,
+        data=json.dumps(insert_data),
+        content_type="application/json",
     )
     result = response.data
     assert response.status_code == status.HTTP_201_CREATED
@@ -222,9 +229,12 @@ def test_contact_book_add_label(
     )
     response = authenticated_user_client.post(
         contact_book_add_label_url,
-        data={
-            "label_ids": [label.id for label in labels[:5]],
-        },
+        data=json.dumps(
+            {
+                "labels": [{"id": label.id} for label in labels[:5]],
+            }
+        ),
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["name"] == user_contact_book.name
@@ -244,7 +254,7 @@ def test_contact_book_add_label_access_other_user(
     response = authenticated_other_user_client.post(
         contact_book_add_label_url,
         data={
-            "label_ids": [label.id for label in labels[:5]],
+            "labels": [{"id": label.id} for label in labels[:5]],
         },
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -260,17 +270,19 @@ def test_contact_book_delete_label(
     for label in labels[:3]:
         ContactLabelFactory.create(contact=user_contact_book, label=label)
 
-    contact_book_add_label_url = (
+    contact_book_delete_label_url = (
         f"{contact_book_url}{user_contact_book.id}/label/deleted/"
     )
-    print("url:", contact_book_add_label_url)
+    label_inputs = [{"id": label.id} for label in labels]
     response = authenticated_user_client.post(
-        contact_book_add_label_url,
-        data={
-            "label_ids": [label.id for label in labels],
-        },
+        contact_book_delete_label_url,
+        data=json.dumps({"labels": label_inputs}),
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not ContactLabel.objects.filter(
+        label_id__in=[label.id for label in labels]
+    ).exists()
 
 
 @pytest.mark.django_db
@@ -285,8 +297,11 @@ def test_contact_book_delete_label_access_other_user(
     )
     response = authenticated_other_user_client.post(
         contact_book_delete_label_url,
-        data={
-            "label_ids": [contact_label.label.id],
-        },
+        data=json.dumps(
+            {
+                "labels": [{"id": contact_label.label.id}],
+            }
+        ),
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND

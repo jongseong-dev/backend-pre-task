@@ -1,34 +1,32 @@
 import pytest
-from unittest.mock import patch
 
-from django.db.utils import IntegrityError
 
 from apps.contactbook.service import ContactBookService
 
 
 @pytest.mark.django_db
-@patch("apps.contactbook.models.ContactLabel.objects.get_or_create")
-def test_add_label_to_contact_book(
-    mock_get_or_create, user_contact_book, labels
-):
-    label_id = labels[0].id
-    ContactBookService.add_label(user_contact_book.id, [label_id])
-    assert mock_get_or_create.call_count == 1
+def test_add_label_to_contact_book(user_contact_book, label):
+    labels = [label.id]
+    ContactBookService.add_label(user_contact_book, labels)
+    assert user_contact_book.labels.first().id == label.id
 
 
 @pytest.mark.django_db
-@patch("apps.contactbook.models.ContactLabel.objects.get_or_create")
-def test_add_multiple_labels_to_contact_book(
-    mock_get_or_create, user_contact_book, labels
-):
-    count = 2
-    input_label = [label.id for label in labels[:count]]
-    ContactBookService.add_label(user_contact_book.id, input_label)
-    assert mock_get_or_create.call_count == count
+def test_add_label_to_contact_book_no_label(user_contact_book):
+    labels = [9999]
+    ContactBookService.add_label(user_contact_book, labels)
+    assert not user_contact_book.labels.first()
 
 
 @pytest.mark.django_db
-def test_add_label_to_nonexistent_contact_book():
-    labels = [100000]
-    with pytest.raises(IntegrityError):
-        ContactBookService.add_label(999, labels)
+def test_get_labels():
+    request_labels = [{"id": 1}, {"id": 2}]
+    result = ContactBookService.get_labels(request_labels)
+    assert result == [1, 2]
+
+
+@pytest.mark.django_db
+def test_get_labels_empty():
+    request_labels = []
+    result = ContactBookService.get_labels(request_labels)
+    assert result == []
