@@ -7,14 +7,12 @@ class ContactBookService:
         instance,
         labels: list[int],
     ):
-        for label in labels:
-            if (
-                label
-                and Label.objects.owner(instance.owner)  # noqa: W503
-                .filter(id=label)
-                .exists()
-            ):
-                instance.labels.add(label)
+        exist_labels = (
+            Label.objects.owner(instance.owner)
+            .filter(id__in=labels)
+            .only("id")
+        )
+        instance.labels.set(exist_labels)
 
     @staticmethod
     def get_labels(
