@@ -1,4 +1,13 @@
-from drf_spectacular.utils import OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiExample,
+    extend_schema,
+)
+
+from apps.contactbook.serializers import (
+    ContactBookRetrieveSerializer,
+    ContactBookListSerializer,
+)
 
 contact_book_parameters = [
     OpenApiParameter(
@@ -30,3 +39,27 @@ contact_book_parameters = [
         ],
     ),
 ]
+
+
+contact_book_create_docs = extend_schema(
+    summary="연락처 생성 API",
+    tags=["ContactBook"],
+    description="주소록의 연락처를 생성하는 API",
+    request=ContactBookRetrieveSerializer,
+)
+
+
+contact_book_list_docs = extend_schema(
+    summary="연락처 목록을 조회하는 API",
+    tags=["ContactBook"],
+    description="본인의 연락처 목록을 조회하는 API",
+    parameters=contact_book_parameters,
+    request=ContactBookListSerializer,
+)
+
+contact_book_retrieve_docs = extend_schema(
+    summary="연락처 상세를 조회하는 API",
+    tags=["ContactBook"],
+    description="본인의 연락처를 상세 조회한다.",
+    request=ContactBookRetrieveSerializer,
+)

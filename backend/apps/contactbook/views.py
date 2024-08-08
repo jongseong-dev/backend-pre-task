@@ -1,11 +1,15 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status, mixins
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from apps.contactbook.api_schemas import contact_book_parameters
+from apps.contactbook.api_schemas import (
+    contact_book_list_docs,
+    contact_book_create_docs,
+    contact_book_retrieve_docs,
+)
 from apps.contactbook.models import ContactBook
 from apps.contactbook.serializers import (
     ContactBookRetrieveSerializer,
@@ -15,10 +19,10 @@ from apps.contactbook.serializers import (
 from apps.contactbook.service import contact_book_service
 
 
-@extend_schema(
-    summary="주소록 API",
-    description="주소록을 조회하는 API",
-    tags=["ContactBook"],
+@extend_schema_view(
+    list=contact_book_list_docs,
+    create=contact_book_create_docs,
+    retrieve=contact_book_retrieve_docs,
 )
 class ContactBookViewSet(
     mixins.CreateModelMixin,
@@ -45,31 +49,6 @@ class ContactBookViewSet(
         return self.queryset.filter(owner=self.request.user).prefetch_related(
             "labels"
         )
-
-    @extend_schema(
-        summary="연락처 생성 API",
-        description="주소록의 연락처를 생성하는 API",
-        request=ContactBookRetrieveSerializer,
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="연락처 목록을 조회하는 API",
-        description="본인의 연락처 목록을 조회하는 API",
-        parameters=contact_book_parameters,
-        request=ContactBookListSerializer,
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="연락처 상세를 조회하는 API",
-        description="본인의 연락처를 상세 조회한다.",
-        request=ContactBookRetrieveSerializer,
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
         summary="연락처 라벨 추가",
